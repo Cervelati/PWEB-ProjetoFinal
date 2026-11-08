@@ -1,0 +1,9 @@
+{$SITE_DOMAIN} {
+	encode gzip
+	reverse_proxy site:80
+}
+
+{$ERP_DOMAIN} {
+	encode gzip
+	reverse_proxy erp:80
+}

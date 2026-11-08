@@ -1,0 +1,8 @@
+target/
+.idea/
+*.iml
+.vscode/
+*-firebase-adminsdk-*.json
+secrets/
+.env
+backups/

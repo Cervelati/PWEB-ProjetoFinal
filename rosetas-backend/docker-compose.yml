@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: rosetas
+      POSTGRES_USER: rosetas
+      POSTGRES_PASSWORD: rosetas
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rosetas -d rosetas"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # API única, usada pelo site e pelo ERP
+  backend:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/rosetas
+      DB_USER: rosetas
+      DB_PASSWORD: rosetas
+      WEBHOOK_SECRET: troque-este-segredo
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - fotos:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  # Site público (clientes, sem login)  ->  http://localhost:3000
+  site:
+    build:
+      context: ../rosetas-site
+      args:
+        VITE_DEV_TOOLS: "true"
+        VITE_DEV_WEBHOOK_SECRET: troque-este-segredo
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+  # ERP (somente equipe, com login)  ->  http://localhost:3001
+  erp:
+    build:
+      context: ../rosetas-erp
+      args:
+        VITE_SITE_URL: http://localhost:3000
+    depends_on:
+      - backend
+    ports:
+      - "3001:80"
+
+volumes:
+  fotos:
+  pgdata:

@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: rosetas-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/rosetas}
+    username: ${DB_USER:rosetas}
+    password: ${DB_PASSWORD:rosetas}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  flyway:
+    enabled: true
+    # Permite aplicar a V2 em bancos de desenvolvimento que já tinham a V100 do seed
+    out-of-order: true
+
+server:
+  port: ${PORT:8080}
+
+app:
+  uploads:
+    dir: ${UPLOADS_DIR:./uploads}
+  security:
+    # firebase = valida o ID token do Firebase (produção)
+    # dev      = confia no header X-Dev-Uid (somente perfil "dev")
+    mode: firebase
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:3000,http://localhost:3001}
+  pagamento:
+    webhook-secret: ${WEBHOOK_SECRET:troque-este-segredo}
+    expiracao-minutos: ${PAGAMENTO_EXPIRACAO_MIN:2880}
+    reconciliacao-ms: ${PAGAMENTO_RECONCILIACAO_MS:60000}
